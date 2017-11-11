@@ -120,10 +120,21 @@ getJasmineRequireObj().util = function(j$) {
     }
   }
 
+  // TODO: private?
   util.callerFile = function() {
     var stackParser = new j$.StackTraceParser();
     var trace = stackParser.parse(errorWithStack().stack);
     return trace.frames[2].file;
+  };
+
+  var jasmineFile;
+
+  util.jasmineFile = function() {
+    if (!jasmineFile) {
+      jasmineFile = util.callerFile();
+    }
+
+    return jasmineFile;
   };
 
   return util;

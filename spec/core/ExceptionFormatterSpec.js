@@ -54,6 +54,57 @@ describe("ExceptionFormatter", function() {
       expect(new jasmineUnderTest.ExceptionFormatter().stack(error)).toMatch(/ExceptionFormatterSpec\.js.*\d+/)
     });
 
+    it("filters Jasmine stack frames from Chrome/IE/Edge style traces", function() {
+      var error = {
+        stack: 'Error: nope\n' +
+          '    at fn1 (http://localhost:8888/__spec__/core/UtilSpec.js:115:19)\n' +
+          '    at fn2 (http://localhost:8888/__jasmine__/jasmine.js:4320:20)\n' +
+          '    at fn3 (http://localhost:8888/__jasmine__/jasmine.js:4320:20)\n' +
+          '    at fn4 (http://localhost:8888/__spec__/core/UtilSpec.js:110:19)\n'
+      };
+      var subject = new jasmineUnderTest.ExceptionFormatter({
+        jasmineFile: 'http://localhost:8888/__jasmine__/jasmine.js'
+      });
+      var result = subject.stack(error);
+      expect(result).toEqual('Error: nope\n' +
+          '    at fn1 (http://localhost:8888/__spec__/core/UtilSpec.js:115:19)\n' +
+          '    at <Jasmine>\n' +
+          '    at fn4 (http://localhost:8888/__spec__/core/UtilSpec.js:110:19)'
+      );
+    });
+
+    it("filters Jasmine stack frames in this environment", function() {
+      var error;
+      try { throw new Error("an error"); } catch(e) { error = e; }
+      var subject = new jasmineUnderTest.ExceptionFormatter({
+        jasmineFile: jasmine.util.jasmineFile()
+      });
+      var result = subject.stack(error);
+      var lines = result.split('\n');
+
+      if (lines[0].match(/an error/)) {
+        lines.shift();
+      }
+
+      expect(lines.length).toEqual(2);
+      expect(lines[0]).toMatch(/ExceptionFormatterSpec.js/);
+      expect(lines[1]).toEqual('    at <Jasmine>');
+
+      /*
+Error: an error
+    at UserContext.<anonymous> (http://localhost:8888/__spec__/core/ExceptionFormatterSpec.js:59:19)
+    at attempt (http://localhost:8888/__jasmine__/jasmine.js:4392:46)
+    at QueueRunner.run (http://localhost:8888/__jasmine__/jasmine.js:4320:20)
+    at QueueRunner.execute (http://localhost:8888/__jasmine__/jasmine.js:4302:10)
+    at Spec.queueRunnerFactory (http://localhost:8888/__jasmine__/jasmine.js:974:35)
+    at Spec.execute (http://localhost:8888/__jasmine__/jasmine.js:574:10)
+    at UserContext.fn (http://localhost:8888/__jasmine__/jasmine.js:5515:37)
+    at attempt (http://localhost:8888/__jasmine__/jasmine.js:4400:26)
+    at QueueRunner.run (http://localhost:8888/__jasmine__/jasmine.js:4320:20)
+    at runNext (http://localhost:8888/__jasmine__/jasmine.js:4360:20)
+*/      
+    });
+
     it("returns null if no Error provided", function() {
       expect(new jasmineUnderTest.ExceptionFormatter().stack()).toBeNull();
     });

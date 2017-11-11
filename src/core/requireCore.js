@@ -34,7 +34,8 @@ var getJasmineRequireObj = (function (jasmineGlobal) {
     j$.Clock = jRequire.Clock();
     j$.DelayedFunctionScheduler = jRequire.DelayedFunctionScheduler();
     j$.Env = jRequire.Env(j$);
-    j$.ExceptionFormatter = jRequire.ExceptionFormatter();
+    j$.StackTraceParser = jRequire.StackTraceParser(j$);
+    j$.ExceptionFormatter = jRequire.ExceptionFormatter(j$);
     j$.Expectation = jRequire.Expectation();
     j$.buildExpectationResult = jRequire.buildExpectationResult();
     j$.JsApiReporter = jRequire.JsApiReporter();
@@ -60,7 +61,6 @@ var getJasmineRequireObj = (function (jasmineGlobal) {
     j$.NullDiffBuilder = jRequire.NullDiffBuilder(j$);
     j$.ObjectPath = jRequire.ObjectPath(j$);
     j$.GlobalErrors = jRequire.GlobalErrors(j$);
-    j$.StackTraceParser = jRequire.StackTraceParser(j$);
 
     j$.matchers = jRequire.requireMatchers(jRequire, j$);
 
